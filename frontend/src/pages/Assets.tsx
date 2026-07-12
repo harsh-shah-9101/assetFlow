@@ -87,6 +87,10 @@ export const Assets = () => {
     }
   };
 
+  const [statusFilter, setStatusFilter] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [showFilters, setShowFilters] = useState(false);
+
   const getStatusBadgeClass = (status: string) => {
     switch(status) {
       case 'AVAILABLE': return 'bg-[var(--color-success-bg)] text-[var(--color-success)]';
@@ -99,10 +103,12 @@ export const Assets = () => {
     }
   };
 
-  const filteredAssets = assets.filter(a => 
-    a.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
-    a.assetTag.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredAssets = assets.filter(a => {
+    const matchesSearch = a.name.toLowerCase().includes(searchQuery.toLowerCase()) || a.assetTag.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter ? a.status === statusFilter : true;
+    const matchesCategory = categoryFilter ? a.categoryId === categoryFilter : true;
+    return matchesSearch && matchesStatus && matchesCategory;
+  });
 
   const isManagerOrAdmin = user?.role === 'ASSET_MANAGER' || user?.role === 'ADMIN';
 
@@ -122,20 +128,46 @@ export const Assets = () => {
       </div>
 
       <Card>
-        <CardHeader className="flex flex-row items-center justify-between pb-4 border-b border-[var(--color-border)]">
-          <div className="flex w-full max-w-sm items-center gap-2 relative">
-            <Search className="absolute left-3 text-[var(--color-text-muted)]" size={18} />
-            <input 
-              type="text" 
-              className="input-field pl-10 w-full" 
-              placeholder="Search by name or tag..." 
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+        <CardHeader className="flex flex-col gap-4 pb-4 border-b border-[var(--color-border)]">
+          <div className="flex flex-row items-center justify-between w-full">
+            <div className="flex w-full max-w-sm items-center gap-2 relative">
+              <Search className="absolute left-3 text-[var(--color-text-muted)]" size={18} />
+              <input 
+                type="text" 
+                className="input-field w-full" 
+                style={{ paddingLeft: '40px' }}
+                placeholder="Search by name or tag..." 
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <Button variant={showFilters ? 'primary' : 'secondary'} className="gap-2" onClick={() => setShowFilters(!showFilters)}>
+              <Filter size={18} /> Filter
+            </Button>
           </div>
-          <Button variant="secondary" className="gap-2">
-            <Filter size={18} /> Filter
-          </Button>
+          
+          {showFilters && (
+            <div className="flex gap-4 p-4 bg-[var(--color-background)] rounded-lg border border-[var(--color-border)]">
+              <div className="flex flex-col gap-1 flex-1">
+                <label className="text-xs font-semibold text-[var(--color-text-muted)] uppercase">Status</label>
+                <select className="input-field" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+                  <option value="">All Statuses</option>
+                  <option value="AVAILABLE">Available</option>
+                  <option value="ALLOCATED">Allocated</option>
+                  <option value="UNDER_MAINTENANCE">Under Maintenance</option>
+                  <option value="LOST">Lost</option>
+                  <option value="RETIRED">Retired</option>
+                </select>
+              </div>
+              <div className="flex flex-col gap-1 flex-1">
+                <label className="text-xs font-semibold text-[var(--color-text-muted)] uppercase">Category</label>
+                <select className="input-field" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+                  <option value="">All Categories</option>
+                  {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
+                </select>
+              </div>
+            </div>
+          )}
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-x-auto">
