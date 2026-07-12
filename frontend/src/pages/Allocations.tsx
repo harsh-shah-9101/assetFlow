@@ -196,7 +196,10 @@ export const Allocations: React.FC = () => {
                         className="w-full" 
                         value={targetUserId} 
                         onChange={setTargetUserId} 
-                        options={[{ value: '', label: 'Select Employee...' }, ...users.map(u => ({ value: u.id, label: u.name }))]}
+                        options={[{ value: '', label: 'Select Employee...' }, ...users.map(u => ({ 
+                          value: u.id, 
+                          label: u.department ? `${u.name} - ${u.department.name}` : u.name 
+                        }))]}
                       />
                     </div>
                   </div>
