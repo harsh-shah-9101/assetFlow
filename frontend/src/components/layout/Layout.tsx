@@ -1,46 +1,151 @@
 import React, { useState } from 'react';
-import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { Outlet, Navigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { AnimatePresence, motion } from 'framer-motion';
 import { 
   LayoutDashboard, Package, Users, CalendarDays, 
-  Wrench, ClipboardCheck, BarChart3, LogOut
+  Wrench, ClipboardCheck, BarChart3, LogOut, Settings,
+  ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
-import { Sidebar, SidebarBody, SidebarLink } from '../ui/sidebar';
-import { useSidebar } from '../../context/SidebarContext';
 
-/* Logo shown inside sidebar, consumes context directly */
-const SidebarLogo = () => {
-  const { open } = useSidebar();
+function WorkspaceSwitcher({ currentWorkspace, userName }: { currentWorkspace: string, userName: string }) {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 8px', textDecoration: 'none', marginBottom: '8px', overflow: 'hidden' }}>
-      <div style={{ width: 24, height: 20, flexShrink: 0, borderRadius: '5px 3px 5px 2px', backgroundColor: 'var(--color-primary)' }} />
-      <AnimatePresence initial={false}>
-        {open && (
-          <motion.span
-            key="logo-text"
-            initial={{ opacity: 0, x: -4 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -4 }}
-            transition={{ duration: 0.18 }}
-            style={{ fontWeight: 700, fontSize: '17px', color: 'var(--color-text)', whiteSpace: 'nowrap' }}
-          >
-            AssetFlow
-          </motion.span>
-        )}
-      </AnimatePresence>
-    </a>
+    <div className="relative">
+      <div 
+        onClick={() => setIsOpen(!isOpen)}
+        className="flex items-center justify-between px-2 py-2 mb-4 rounded-lg hover:bg-white/5 cursor-pointer transition-colors select-none group border border-transparent hover:border-zinc-800"
+      >
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-[6px] bg-orange-500 text-white flex items-center justify-center font-semibold text-[13px] shadow-sm uppercase">
+            {currentWorkspace.charAt(0)}
+          </div>
+          <div className="flex flex-col overflow-hidden">
+            <span className="text-[13px] font-medium leading-none mb-1 text-white truncate max-w-[120px]">{currentWorkspace}</span>
+            <span className="text-[11px] text-zinc-400 leading-none truncate max-w-[120px]">{userName}</span>
+          </div>
+        </div>
+        <ChevronDown className="w-4 h-4 text-zinc-500 group-hover:text-zinc-300 transition-colors shrink-0" strokeWidth={1.5} />
+      </div>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute top-[52px] left-0 w-full bg-zinc-900 border border-zinc-800 rounded-lg shadow-xl z-50 py-2.5 flex flex-col gap-0.5 animate-in fade-in zoom-in-95 duration-100">
+            <div className="px-3.5 py-1 text-[13px] font-medium text-orange-500">
+              {currentWorkspace}
+            </div>
+            <div className="h-px bg-zinc-800 my-2 mx-3" />
+            <div className="px-3.5 py-1 text-[10px] text-zinc-500 uppercase tracking-wider font-semibold">
+              User Profile
+            </div>
+            <div className="px-3.5 py-1.5 text-[13px] text-zinc-300">
+              Role: <span className="text-white font-medium text-xs bg-zinc-800 px-2 py-0.5 rounded-full">{userName}</span>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
   );
-};
+}
+
+function NavItem({ 
+  item, 
+  activePath,
+  level = 0,
+  onClick
+}: { 
+  item: any; 
+  activePath: string;
+  level?: number;
+  onClick?: (e: React.MouseEvent) => void;
+}) {
+  const isActive = activePath === item.path || (item.path !== '/' && activePath.startsWith(item.path));
+  const hasChildren = !!item.children;
+  const [isOpen, setIsOpen] = useState(false);
+
+  return (
+    <div className="flex flex-col w-full">
+      {hasChildren ? (
+        <div 
+          className="group flex items-center justify-between px-2.5 py-[7px] rounded-[6px] cursor-pointer transition-all duration-200 select-none text-zinc-400 hover:bg-white/5 hover:text-zinc-100"
+          style={{ paddingLeft: `${level * 12 + 10}px` }}
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <div className="flex items-center gap-2.5">
+            <item.icon className="w-[16px] h-[16px] text-zinc-500 group-hover:text-zinc-300" strokeWidth={1.5} />
+            <span className="text-[13px] tracking-wide truncate">{item.title}</span>
+          </div>
+          <ChevronRight 
+            className={`w-3.5 h-3.5 text-zinc-500 transition-transform duration-200 ${isOpen ? 'rotate-90' : ''}`} 
+            strokeWidth={2}
+          />
+        </div>
+      ) : (
+        <Link 
+          to={item.path}
+          onClick={onClick}
+          className={`group flex items-center justify-between px-2.5 py-[7px] rounded-[6px] cursor-pointer transition-all duration-200 select-none no-underline
+            ${isActive 
+              ? 'bg-zinc-800 text-white font-medium shadow-sm' 
+              : 'text-zinc-400 hover:bg-white/5 hover:text-zinc-100'
+            }
+          `}
+          style={{ paddingLeft: `${level * 12 + 10}px` }}
+        >
+          <div className="flex items-center gap-2.5">
+            <item.icon 
+              className={`w-[16px] h-[16px] transition-colors
+                ${isActive ? 'text-orange-500' : 'text-zinc-500 group-hover:text-zinc-300'}
+              `} 
+              strokeWidth={1.5} 
+            />
+            <span className="text-[13px] tracking-wide truncate">
+              {item.title}
+            </span>
+          </div>
+          {item.badge && (
+            <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 text-[10px] font-medium rounded-full bg-orange-500/10 text-orange-500">
+              {item.badge}
+            </span>
+          )}
+        </Link>
+      )}
+
+      {hasChildren && (
+        <div 
+          className={`grid transition-[grid-template-rows,opacity] duration-300 ease-in-out ${
+            isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
+          }`}
+        >
+          <div className="overflow-hidden min-h-0 relative flex flex-col gap-0.5 mt-0.5">
+            <div 
+              className="absolute top-0 bottom-0 border-l border-white/5"
+              style={{ left: `${level * 12 + 17.5}px` }}
+            />
+            {item.children.map((child: any) => (
+              <NavItem 
+                key={child.id} 
+                item={child} 
+                activePath={activePath} 
+                level={level + 1} 
+              />
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export const Layout: React.FC = () => {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
 
   if (isLoading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Inter, sans-serif', color: '#6b7280' }}>
+      <div className="flex items-center justify-center h-screen font-sans text-zinc-500 bg-zinc-950">
         Loading…
       </div>
     );
@@ -50,95 +155,110 @@ export const Layout: React.FC = () => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  const navItems = [
-    { name: 'Dashboard',   path: '/',           icon: LayoutDashboard, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
-    { name: 'Assets',      path: '/assets',      icon: Package,         roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
-    { name: 'Allocations', path: '/allocations', icon: Users,           roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
-    { name: 'Bookings',    path: '/bookings',    icon: CalendarDays,    roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
-    { name: 'Maintenance', path: '/maintenance', icon: Wrench,          roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
-    { name: 'Audits',      path: '/audits',      icon: ClipboardCheck,  roles: ['ASSET_MANAGER','ADMIN'] },
-    { name: 'Reports',     path: '/reports',     icon: BarChart3,       roles: ['DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
-    { name: 'Org Setup',   path: '/setup',       icon: Users,           roles: ['ADMIN'] },
+  // Sidebar Groups adapted from actual routes & permissions
+  const groups = [
+    {
+      items: [
+        { id: 'dashboard', title: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+      ]
+    },
+    {
+      heading: 'Operations',
+      items: [
+        { id: 'assets', title: 'Assets', path: '/assets', icon: Package, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+        { id: 'allocations', title: 'Allocations', path: '/allocations', icon: Users, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+        { id: 'bookings', title: 'Bookings', path: '/bookings', icon: CalendarDays, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+        { id: 'maintenance', title: 'Maintenance', path: '/maintenance', icon: Wrench, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+      ]
+    },
+    {
+      heading: 'Management',
+      items: [
+        { id: 'audits', title: 'Audits', path: '/audits', icon: ClipboardCheck, roles: ['ASSET_MANAGER','ADMIN'] },
+        { id: 'reports', title: 'Reports', path: '/reports', icon: BarChart3, roles: ['DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+      ]
+    }
   ];
 
-  const allowed = navItems.filter(item => user && item.roles.includes(user.role));
+  // Filter allowed groups & items
+  const allowedGroups = groups.map(group => ({
+    ...group,
+    items: group.items.filter(item => user && item.roles.includes(user.role))
+  })).filter(group => group.items.length > 0);
 
-  const currentPage = allowed.find(item =>
+  const flatItems = allowedGroups.flatMap(g => g.items);
+  const currentPage = flatItems.find(item =>
     item.path === location.pathname || (item.path !== '/' && location.pathname.startsWith(item.path))
-  )?.name ?? 'Dashboard';
+  )?.title ?? 'Dashboard';
 
   return (
-    <div style={{
-      display: 'flex',
-      height: '100vh',
-      width: '100%',
-      overflow: 'hidden',
-      backgroundColor: 'var(--color-background)',
-      fontFamily: "'Inter', system-ui, sans-serif",
-    }}>
-      {/* ── Sidebar ── */}
-      <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody>
-          {/* Logo */}
-          <SidebarLogo />
+    <div className="flex h-screen w-full overflow-hidden bg-zinc-950 font-sans">
+      
+      {/* ── Sidebar Nav ── */}
+      <div 
+        className={`h-full transition-all duration-300 ease-in-out shrink-0 overflow-hidden bg-zinc-900 border-r border-zinc-800/80 flex flex-col p-3 ${
+          open ? 'w-[260px] opacity-100' : 'w-0 opacity-0 border-r-0 !p-0'
+        }`}
+      >
+        <WorkspaceSwitcher currentWorkspace="AssetFlow" userName={user?.role ?? 'User'} />
 
-          {/* Divider */}
-          <div style={{ height: 1, backgroundColor: 'var(--color-border)', margin: '8px 0 16px' }} />
-
-          {/* Nav links – scrollable */}
-          <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            {allowed.map(item => {
-              const active = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-              return (
-                <SidebarLink
-                  key={item.path}
-                  isActive={active}
-                  link={{
-                    label: item.name,
-                    href: item.path,
-                    icon: <item.icon size={20} color={active ? 'var(--color-primary)' : 'var(--color-text-muted)'} strokeWidth={active ? 2 : 1.5} />,
-                  }}
+        <div className="flex-1 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none] flex flex-col gap-4 mt-2">
+          {allowedGroups.map((group, idx) => (
+            <div key={idx} className="flex flex-col gap-0.5">
+              {group.heading && (
+                <span className="px-2.5 mb-1 text-[11px] font-semibold tracking-wider text-zinc-500 uppercase">
+                  {group.heading}
+                </span>
+              )}
+              {group.items.map(item => (
+                <NavItem 
+                  key={item.id} 
+                  item={item} 
+                  activePath={location.pathname} 
                 />
-              );
-            })}
-          </div>
-
-          {/* Bottom: user + logout */}
-          <div style={{ paddingTop: '12px', borderTop: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
-            <SidebarLink
-              link={{
-                label: user?.name ?? 'User',
-                href: '#',
-                icon: (
-                  <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, color: '#fff', background: 'linear-gradient(135deg,#667eea,#764ba2)', flexShrink: 0 }}>
-                    {user?.name?.charAt(0)?.toUpperCase()}
-                  </div>
-                ),
-              }}
-            />
-            <div onClick={() => logout()} style={{ cursor: 'pointer' }}>
-              <SidebarLink
-                link={{
-                  label: 'Logout',
-                  href: '#',
-                  icon: <LogOut size={20} color="#ef4444" strokeWidth={1.5} />,
-                }}
-                onClick={(e: React.MouseEvent) => { e.preventDefault(); logout(); }}
-              />
+              ))}
             </div>
-          </div>
-        </SidebarBody>
-      </Sidebar>
-
-      {/* ── Main area ── */}
-      <div style={{ display: 'flex', flex: 1, flexDirection: 'column', overflow: 'hidden', margin: '8px 8px 8px 0' }}>
-        {/* Header */}
-        <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '16px 16px 0 0', padding: '0 28px', height: 52, display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'var(--color-text)' }}>{currentPage}</h2>
+          ))}
         </div>
 
-        {/* Page content */}
-        <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '0 0 16px 16px', flex: 1, overflow: 'auto', padding: '24px 28px' }}>
+        <div className="mt-auto pt-4 border-t border-zinc-800 flex flex-col gap-0.5">
+          {user?.role === 'ADMIN' && (
+            <NavItem 
+              item={{ id: 'setup', title: 'Org Setup', path: '/setup', icon: Settings }} 
+              activePath={location.pathname} 
+            />
+          )}
+          <div onClick={() => logout()} className="w-full">
+            <NavItem 
+              item={{ id: 'logout', title: 'Log out', path: '#', icon: LogOut }} 
+              activePath="" 
+              onClick={(e) => { e.preventDefault(); logout(); }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main Content Area ── */}
+      <div className="flex flex-1 flex-col overflow-hidden m-2 md:m-2.5">
+        
+        {/* Header with Breadcrumbs & Sidebar Toggle */}
+        <div className="bg-zinc-900 rounded-t-2xl px-6 height-14 h-14 flex items-center gap-4 border-b border-zinc-800/80 shrink-0">
+          <button 
+            onClick={() => setOpen(!open)}
+            className="p-1.5 rounded-md text-zinc-400 hover:bg-white/5 hover:text-white transition-colors cursor-pointer"
+          >
+            {open ? <PanelLeftClose className="w-[18px] h-[18px]" strokeWidth={1.5} /> : <PanelLeftOpen className="w-[18px] h-[18px]" strokeWidth={1.5} />}
+          </button>
+          
+          <div className="flex items-center gap-2 text-sm text-zinc-400 select-none">
+            <span className="truncate">AssetFlow</span>
+            <span className="text-zinc-600">/</span>
+            <span className="font-medium text-white truncate">{currentPage}</span>
+          </div>
+        </div>
+
+        {/* Dynamic Page content */}
+        <div className="bg-zinc-900 rounded-b-2xl flex-1 overflow-auto p-6 md:p-8">
           <Outlet />
         </div>
       </div>

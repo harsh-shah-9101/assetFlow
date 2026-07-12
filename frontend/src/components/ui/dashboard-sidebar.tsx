@@ -427,5 +427,3 @@ export function SidebarNavPreview() {
     </div>
   );
 }
-
-export default { SidebarNavPreview };
