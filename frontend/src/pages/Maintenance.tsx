@@ -18,8 +18,14 @@ export const Maintenance: React.FC = () => {
   const [requests, setRequests] = useState<any[]>([]);
   const [assets, setAssets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [users, setUsers] = useState<any[]>([]);
   const [isRaiseOpen, setIsRaiseOpen] = useState(false);
   const [formData, setFormData] = useState({ assetId: '', issue: '', priority: 'MEDIUM' });
+
+  // Technician Assignment State
+  const [isAssignOpen, setIsAssignOpen] = useState(false);
+  const [pendingTicketId, setPendingTicketId] = useState('');
+  const [selectedTechId, setSelectedTechId] = useState('');
 
   const fetchRequests = async () => {
     setIsLoading(true);
@@ -36,6 +42,7 @@ export const Maintenance: React.FC = () => {
   useEffect(() => {
     fetchRequests();
     api.get('/assets').then(res => setAssets(res.data)).catch(console.error);
+    api.get('/users').then(res => setUsers(res.data)).catch(console.error);
   }, []);
 
   const handleDragStart = (e: React.DragEvent, ticketId: string) => {
@@ -60,6 +67,12 @@ export const Maintenance: React.FC = () => {
     const ticketId = e.dataTransfer.getData('ticketId');
     if (!ticketId) return;
 
+    if (targetStatus === 'TECHNICIAN_ASSIGNED') {
+      setPendingTicketId(ticketId);
+      setIsAssignOpen(true);
+      return;
+    }
+
     // Optimistically update UI
     setRequests(prev => prev.map(req => 
       req.id === ticketId ? { ...req, status: targetStatus } : req
@@ -72,6 +85,33 @@ export const Maintenance: React.FC = () => {
       console.error(error);
       alert('Failed to update status.');
       fetchRequests(); // Revert on failure
+    }
+  };
+
+  const handleAssignTech = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Optimistically update UI
+    const assignedUser = users.find(u => u.id === selectedTechId);
+    setRequests(prev => prev.map(req => 
+      req.id === pendingTicketId ? { 
+        ...req, 
+        status: 'TECHNICIAN_ASSIGNED', 
+        assignedTech: { name: assignedUser?.name || 'Unknown' } 
+      } : req
+    ));
+    setIsAssignOpen(false);
+
+    try {
+      await api.put(`/maintenance/${pendingTicketId}/status`, { 
+        status: 'TECHNICIAN_ASSIGNED',
+        assignedTechId: selectedTechId 
+      });
+      fetchRequests(); // Re-fetch to ensure sync
+    } catch (error) {
+      console.error(error);
+      alert('Failed to assign technician.');
+      fetchRequests();
     }
   };
 
@@ -127,6 +167,11 @@ export const Maintenance: React.FC = () => {
                     <div className="text-sm font-medium leading-snug">
                       {req.issue}
                     </div>
+                    {req.assignedTech && (
+                      <div className="text-xs text-[var(--color-text-muted)] mt-2 font-medium">
+                        tech: {req.assignedTech.name}
+                      </div>
+                    )}
                   </div>
                 ))}
             </div>
@@ -175,6 +220,24 @@ export const Maintenance: React.FC = () => {
           </div>
           <div className="flex justify-end pt-4">
             <Button type="submit">Submit Request</Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal isOpen={isAssignOpen} onClose={() => setIsAssignOpen(false)} title="Assign Technician">
+        <form onSubmit={handleAssignTech} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[var(--color-text-muted)]">Select Technician</label>
+            <Select 
+              className="w-full"
+              required 
+              value={selectedTechId} 
+              onChange={val => setSelectedTechId(val)}
+              options={[{ value: '', label: 'Select Employee...' }, ...users.map(u => ({ value: u.id, label: u.name }))]}
+            />
+          </div>
+          <div className="flex justify-end pt-4">
+            <Button type="submit">Assign & Move Ticket</Button>
           </div>
         </form>
       </Modal>

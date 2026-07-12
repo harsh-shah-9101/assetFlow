@@ -42,7 +42,8 @@ model User {
   headedDepartment     Department?          @relation("DepartmentHead")
   allocations          Allocation[]
   bookings             Booking[]
-  maintenanceRequests  MaintenanceRequest[]
+  maintenanceRequests  MaintenanceRequest[] @relation("MaintenanceRequester")
+  maintenanceAssigned  MaintenanceRequest[] @relation("MaintenanceTechnician")
 }
 
 model AssetCategory {
@@ -146,7 +147,9 @@ model MaintenanceRequest {
   assetId     String
   asset       Asset               @relation(fields: [assetId], references: [id])
   requesterId String
-  requester   User                @relation(fields: [requesterId], references: [id])
+  requester   User                @relation("MaintenanceRequester", fields: [requesterId], references: [id])
+  assignedTechId String?
+  assignedTech   User?            @relation("MaintenanceTechnician", fields: [assignedTechId], references: [id])
   issue       String
   priority    MaintenancePriority @default(MEDIUM)
   status      MaintenanceStatus   @default(PENDING)

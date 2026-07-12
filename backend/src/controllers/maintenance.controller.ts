@@ -6,7 +6,8 @@ export const getMaintenanceRequests = async (req: Request, res: Response) => {
     const requests = await prisma.maintenanceRequest.findMany({
       include: {
         asset: { select: { id: true, name: true, assetTag: true } },
-        requester: { select: { id: true, name: true } }
+        requester: { select: { id: true, name: true } },
+        assignedTech: { select: { name: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
@@ -38,21 +39,26 @@ export const raiseRequest = async (req: Request, res: Response) => {
   }
 };
 
-export const updateRequestStatus = async (req: Request, res: Response) => {
-  try {
-    const id = req.params.id as string;
-    const { status } = req.body; // APPROVED, REJECTED, IN_PROGRESS, RESOLVED
-
-    const request = await prisma.maintenanceRequest.findUnique({ where: { id } });
-    if (!request) {
-      return res.status(404).json({ message: 'Maintenance request not found' });
-    }
-
-    await prisma.$transaction(async (tx) => {
-      const updated = await tx.maintenanceRequest.update({
-        where: { id },
-        data: { status }
-      });
+  export const updateRequestStatus = async (req: Request, res: Response) => {
+    try {
+      const id = req.params.id as string;
+      const { status, assignedTechId } = req.body;
+  
+      const request = await prisma.maintenanceRequest.findUnique({ where: { id } });
+      if (!request) {
+        return res.status(404).json({ message: 'Maintenance request not found' });
+      }
+  
+      await prisma.$transaction(async (tx) => {
+        const dataToUpdate: any = { status };
+        if (assignedTechId !== undefined) {
+          dataToUpdate.assignedTechId = assignedTechId || null;
+        }
+  
+        const updated = await tx.maintenanceRequest.update({
+          where: { id },
+          data: dataToUpdate
+        });
 
       // If approved, set asset to UNDER_MAINTENANCE
       if (status === 'APPROVED') {
