@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getAuditCycles, createAuditCycle, updateAuditItem, closeAuditCycle } from '../controllers/audit.controller';
+import { getAuditCycles, createAuditCycle, updateAuditItem, closeAuditCycle, deleteAuditCycle } from '../controllers/audit.controller';
 import { authenticate, authorize } from '../middlewares/auth.middleware';
 
 const router = Router();
@@ -11,5 +11,6 @@ router.get('/', getAuditCycles);
 router.post('/', createAuditCycle);
 router.put('/items/:id', updateAuditItem);
 router.post('/:id/close', closeAuditCycle);
+router.delete('/:id', deleteAuditCycle);
 
 export default router;

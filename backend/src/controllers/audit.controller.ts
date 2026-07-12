@@ -107,3 +107,19 @@ export const closeAuditCycle = async (req: Request, res: Response) => {
     res.status(500).json({ message: 'Error closing audit cycle', error: error.message });
   }
 };
+
+export const deleteAuditCycle = async (req: Request, res: Response) => {
+  try {
+    const id = req.params.id as string;
+
+    // Delete associated audit items first to avoid foreign key constraint errors
+    await prisma.$transaction([
+      prisma.auditItem.deleteMany({ where: { auditCycleId: id } }),
+      prisma.auditCycle.delete({ where: { id } })
+    ]);
+
+    res.status(200).json({ message: 'Audit cycle deleted successfully' });
+  } catch (error: any) {
+    res.status(500).json({ message: 'Error deleting audit cycle', error: error.message });
+  }
+};

@@ -58,6 +58,17 @@ export const Audits: React.FC = () => {
     }
   };
 
+  const handleDeleteAudit = async (id: string) => {
+    if (!window.confirm("Are you sure you want to delete this audit cycle? This action cannot be undone.")) return;
+    try {
+      await api.delete(`/audits/${id}`);
+      fetchData();
+    } catch (error) {
+      console.error("Failed to delete audit", error);
+      alert("Failed to delete audit cycle.");
+    }
+  };
+
   const updateItemStatus = async (itemId: string, status: string) => {
     try {
       await api.put(`/audits/items/${itemId}`, { status });
@@ -229,9 +240,14 @@ export const Audits: React.FC = () => {
                           </span>
                         </td>
                         <td className="p-4 text-right">
-                          <Button size="sm" onClick={() => setSelectedAudit(audit)}>
-                            {audit.isClosed ? 'View Results' : 'Continue Audit'}
-                          </Button>
+                          <div className="flex justify-end gap-2">
+                            <Button size="sm" onClick={() => setSelectedAudit(audit)}>
+                              {audit.isClosed ? 'View Results' : 'Continue Audit'}
+                            </Button>
+                            <Button size="sm" variant="danger" onClick={() => handleDeleteAudit(audit.id)}>
+                              Delete
+                            </Button>
+                          </div>
                         </td>
                       </tr>
                     );
