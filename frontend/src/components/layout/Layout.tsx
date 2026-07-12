@@ -1,19 +1,37 @@
 import React, { useState } from 'react';
 import { Outlet, Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import { AnimatePresence, motion } from 'framer-motion';
 import { 
-  LayoutDashboard, 
-  Package, 
-  Users, 
-  CalendarDays, 
-  Wrench, 
-  ClipboardCheck, 
-  BarChart3,
-  LogOut
+  LayoutDashboard, Package, Users, CalendarDays, 
+  Wrench, ClipboardCheck, BarChart3, LogOut
 } from 'lucide-react';
 import { Sidebar, SidebarBody, SidebarLink } from '../ui/sidebar';
-import { cn } from '../../lib/utils';
-import { motion } from 'framer-motion';
+import { useSidebar } from '../../context/SidebarContext';
+
+/* Logo shown inside sidebar, consumes context directly */
+const SidebarLogo = () => {
+  const { open } = useSidebar();
+  return (
+    <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 8px', textDecoration: 'none', marginBottom: '8px', overflow: 'hidden' }}>
+      <div style={{ width: 24, height: 20, flexShrink: 0, borderRadius: '5px 3px 5px 2px', backgroundColor: '#111827' }} />
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.span
+            key="logo-text"
+            initial={{ opacity: 0, x: -4 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -4 }}
+            transition={{ duration: 0.18 }}
+            style={{ fontWeight: 700, fontSize: '17px', color: '#111827', whiteSpace: 'nowrap' }}
+          >
+            AssetFlow
+          </motion.span>
+        )}
+      </AnimatePresence>
+    </a>
+  );
+};
 
 export const Layout: React.FC = () => {
   const { user, logout, isAuthenticated, isLoading } = useAuth();
@@ -21,7 +39,11 @@ export const Layout: React.FC = () => {
   const [open, setOpen] = useState(false);
 
   if (isLoading) {
-    return <div className="flex items-center justify-center h-screen">Loading...</div>;
+    return (
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Inter, sans-serif', color: '#6b7280' }}>
+        Loading…
+      </div>
+    );
   }
 
   if (!isAuthenticated) {
@@ -29,87 +51,96 @@ export const Layout: React.FC = () => {
   }
 
   const navItems = [
-    { name: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['EMPLOYEE', 'DEPARTMENT_HEAD', 'ASSET_MANAGER', 'ADMIN'] },
-    { name: 'Assets', path: '/assets', icon: Package, roles: ['EMPLOYEE', 'DEPARTMENT_HEAD', 'ASSET_MANAGER', 'ADMIN'] },
-    { name: 'Allocations', path: '/allocations', icon: Users, roles: ['EMPLOYEE', 'DEPARTMENT_HEAD', 'ASSET_MANAGER', 'ADMIN'] },
-    { name: 'Bookings', path: '/bookings', icon: CalendarDays, roles: ['EMPLOYEE', 'DEPARTMENT_HEAD', 'ASSET_MANAGER', 'ADMIN'] },
-    { name: 'Maintenance', path: '/maintenance', icon: Wrench, roles: ['EMPLOYEE', 'DEPARTMENT_HEAD', 'ASSET_MANAGER', 'ADMIN'] },
-    { name: 'Audits', path: '/audits', icon: ClipboardCheck, roles: ['ASSET_MANAGER', 'ADMIN'] },
-    { name: 'Reports', path: '/reports', icon: BarChart3, roles: ['DEPARTMENT_HEAD', 'ASSET_MANAGER', 'ADMIN'] },
-    { name: 'Org Setup', path: '/setup', icon: Users, roles: ['ADMIN'] },
+    { name: 'Dashboard',   path: '/',           icon: LayoutDashboard, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+    { name: 'Assets',      path: '/assets',      icon: Package,         roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+    { name: 'Allocations', path: '/allocations', icon: Users,           roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+    { name: 'Bookings',    path: '/bookings',    icon: CalendarDays,    roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+    { name: 'Maintenance', path: '/maintenance', icon: Wrench,          roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+    { name: 'Audits',      path: '/audits',      icon: ClipboardCheck,  roles: ['ASSET_MANAGER','ADMIN'] },
+    { name: 'Reports',     path: '/reports',     icon: BarChart3,       roles: ['DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+    { name: 'Org Setup',   path: '/setup',       icon: Users,           roles: ['ADMIN'] },
   ];
 
-  const allowedNavItems = navItems.filter(item => user && item.roles.includes(user.role));
+  const allowed = navItems.filter(item => user && item.roles.includes(user.role));
+
+  const currentPage = allowed.find(item =>
+    item.path === location.pathname || (item.path !== '/' && location.pathname.startsWith(item.path))
+  )?.name ?? 'Dashboard';
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-neutral-800 w-full overflow-hidden">
+    <div style={{
+      display: 'flex',
+      height: '100vh',
+      width: '100%',
+      overflow: 'hidden',
+      backgroundColor: '#f3f4f6',
+      fontFamily: "'Inter', system-ui, sans-serif",
+    }}>
+      {/* ── Sidebar ── */}
       <Sidebar open={open} setOpen={setOpen}>
-        <SidebarBody className="justify-between gap-10">
-          <div className="flex flex-col flex-1 overflow-x-hidden overflow-y-auto">
-            <a
-              href="#"
-              className="relative z-20 flex items-center space-x-2 py-1 text-sm font-normal text-black dark:text-white"
-            >
-              <div className="h-6 w-6 shrink-0 rounded-tl-lg rounded-tr-sm rounded-br-lg rounded-bl-sm bg-black dark:bg-white" />
-              <motion.span
-                animate={{ opacity: open ? 1 : 0, display: open ? "inline-block" : "none" }}
-                className="font-semibold whitespace-pre text-black dark:text-white text-xl"
-              >
-                AssetFlow
-              </motion.span>
-            </a>
-            <div className="mt-8 flex flex-col gap-2">
-              {allowedNavItems.map((item) => {
-                const isActive = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
-                return (
-                  <SidebarLink 
-                    key={item.path} 
-                    className={cn(isActive && "bg-neutral-200 dark:bg-neutral-700 rounded-md")}
-                    link={{ 
-                      label: item.name, 
-                      href: item.path, 
-                      icon: <item.icon className="h-5 w-5 shrink-0 text-neutral-700 dark:text-neutral-200" /> 
-                    }} 
-                  />
-                );
-              })}
-            </div>
+        <SidebarBody>
+          {/* Logo */}
+          <SidebarLogo />
+
+          {/* Divider */}
+          <div style={{ height: 1, backgroundColor: '#f3f4f6', margin: '8px 0 16px' }} />
+
+          {/* Nav links – scrollable */}
+          <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+            {allowed.map(item => {
+              const active = location.pathname === item.path || (item.path !== '/' && location.pathname.startsWith(item.path));
+              return (
+                <SidebarLink
+                  key={item.path}
+                  isActive={active}
+                  link={{
+                    label: item.name,
+                    href: item.path,
+                    icon: <item.icon size={20} color={active ? '#3b82f6' : '#9ca3af'} strokeWidth={active ? 2 : 1.5} />,
+                  }}
+                />
+              );
+            })}
           </div>
-          <div>
+
+          {/* Bottom: user + logout */}
+          <div style={{ paddingTop: '12px', borderTop: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <SidebarLink
               link={{
-                label: user?.name || "User",
-                href: "#",
+                label: user?.name ?? 'User',
+                href: '#',
                 icon: (
-                  <div className="h-7 w-7 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] flex items-center justify-center font-bold shrink-0">
-                    {user?.name.charAt(0).toUpperCase()}
+                  <div style={{ width: 28, height: 28, borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 12, color: '#fff', background: 'linear-gradient(135deg,#667eea,#764ba2)', flexShrink: 0 }}>
+                    {user?.name?.charAt(0)?.toUpperCase()}
                   </div>
                 ),
               }}
             />
-            <button onClick={logout} className="w-full text-left mt-2">
-               <SidebarLink
-                  link={{
-                    label: "Logout",
-                    href: "#",
-                    icon: <LogOut className="h-5 w-5 shrink-0 text-red-500" />
-                  }}
-                  onClick={(e) => { e.preventDefault(); logout(); }}
-               />
-            </button>
+            <div onClick={() => logout()} style={{ cursor: 'pointer' }}>
+              <SidebarLink
+                link={{
+                  label: 'Logout',
+                  href: '#',
+                  icon: <LogOut size={20} color="#ef4444" strokeWidth={1.5} />,
+                }}
+                onClick={(e: React.MouseEvent) => { e.preventDefault(); logout(); }}
+              />
+            </div>
           </div>
         </SidebarBody>
       </Sidebar>
-      <div className="flex flex-1 flex-col overflow-hidden bg-gray-100 dark:bg-neutral-800">
-        <header className="h-16 flex items-center px-8 z-10 bg-white dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-700 rounded-tl-2xl rounded-tr-2xl md:mx-2 mt-2">
-          <h2 className="text-xl font-semibold text-neutral-800 dark:text-neutral-100">
-            {allowedNavItems.find(item => item.path === location.pathname)?.name || 'AssetFlow'}
-          </h2>
-        </header>
-        
-        <main className="flex-1 overflow-y-auto p-4 md:p-8 animate-fade-in bg-white dark:bg-neutral-900 md:mx-2 md:mb-2 rounded-bl-2xl rounded-br-2xl border-x border-b border-neutral-200 dark:border-neutral-700">
+
+      {/* ── Main area ── */}
+      <div style={{ display: 'flex', flex: 1, flexDirection: 'column', overflow: 'hidden', margin: '8px 8px 8px 0' }}>
+        {/* Header */}
+        <div style={{ backgroundColor: '#fff', borderRadius: '16px 16px 0 0', padding: '0 28px', height: 52, display: 'flex', alignItems: 'center', borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
+          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#111827' }}>{currentPage}</h2>
+        </div>
+
+        {/* Page content */}
+        <div style={{ backgroundColor: '#fff', borderRadius: '0 0 16px 16px', flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <Outlet />
-        </main>
+        </div>
       </div>
     </div>
   );
