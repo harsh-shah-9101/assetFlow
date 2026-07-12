@@ -141,12 +141,12 @@ export const Assets = () => {
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
-          <div className="flex gap-2 items-center flex-wrap">
-            <select className="input-field !py-2 !px-3 bg-[var(--color-surface)]" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
+          <div className="flex gap-3 items-center">
+            <select className="input-field !py-2 !px-3 !w-auto min-w-[160px] bg-[var(--color-surface)] cursor-pointer hover:border-[var(--color-primary)] transition-colors" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
               <option value="">Category</option>
               {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
             </select>
-            <select className="input-field !py-2 !px-3 bg-[var(--color-surface)]" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
+            <select className="input-field !py-2 !px-3 !w-auto min-w-[160px] bg-[var(--color-surface)] cursor-pointer hover:border-[var(--color-primary)] transition-colors" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
               <option value="">Status</option>
               <option value="AVAILABLE">Available</option>
               <option value="ALLOCATED">Allocated</option>
@@ -154,7 +154,7 @@ export const Assets = () => {
               <option value="LOST">Lost</option>
               <option value="RETIRED">Retired</option>
             </select>
-            <select className="input-field !py-2 !px-3 bg-[var(--color-surface)]" value={departmentFilter} onChange={e => setDepartmentFilter(e.target.value)}>
+            <select className="input-field !py-2 !px-3 !w-auto min-w-[160px] bg-[var(--color-surface)] cursor-pointer hover:border-[var(--color-primary)] transition-colors" value={departmentFilter} onChange={e => setDepartmentFilter(e.target.value)}>
               <option value="">Department</option>
               {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
             </select>
