@@ -165,6 +165,28 @@ export const Dashboard: React.FC = () => {
         ))}
       </div>
 
+      {/* Quick Actions Row */}
+      <div style={{ display: 'flex', gap: '16px', marginTop: '4px' }}>
+        <button
+          onClick={() => navigate('/assets')}
+          style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid var(--color-primary)', background: 'var(--color-primary)', color: '#fff', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s', boxShadow: 'var(--shadow-md)' }}
+        >
+          <Package size={18} /> + Register Asset
+        </button>
+        <button
+          onClick={() => navigate('/bookings')}
+          style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+        >
+          <CalendarDays size={18} /> Book Resource
+        </button>
+        <button
+          onClick={() => navigate('/maintenance')}
+          style={{ flex: 1, padding: '14px', borderRadius: '12px', border: '1px solid var(--color-border)', background: 'var(--color-surface)', color: 'var(--color-text)', fontSize: '14px', fontWeight: 600, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', transition: 'all 0.2s', boxShadow: 'var(--shadow-sm)' }}
+        >
+          <Wrench size={18} /> Raise Request
+        </button>
+      </div>
+
       {/* Chart + Activity Row */}
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '16px', flex: 1 }}>
         {/* Chart */}
