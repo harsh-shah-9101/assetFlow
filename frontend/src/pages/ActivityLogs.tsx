@@ -6,60 +6,36 @@ import {
 } from 'lucide-react';
 import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
 import api from '../services/api';
-
-const mockNotifications = [
-  { id: 'n1', title: 'Overdue Return Alert', message: 'Laptop AF-0114 expected return date (2026-07-10) is past. Currently held by Priya.', type: 'danger', time: '1 hour ago', category: 'return' },
-  { id: 'n2', title: 'Maintenance Approved', message: 'Maintenance ticket for Projector AF-0092 approved by Asset Manager.', type: 'success', time: '3 hours ago', category: 'maintenance' },
-  { id: 'n3', title: 'Asset Assigned', message: 'Dell XPS 15 (AF-0045) successfully assigned to Raj Kumar.', type: 'info', time: '5 hours ago', category: 'allocation' },
-  { id: 'n4', title: 'Booking Confirmed', message: 'Meeting Room B2 booked for 10:00 AM - 11:00 AM today.', type: 'success', time: '6 hours ago', category: 'booking' },
-  { id: 'n5', title: 'Transfer Request Approved', message: 'Transfer of MacBook Pro (AF-0012) from Sarah to John approved.', type: 'success', time: '1 day ago', category: 'transfer' },
-  { id: 'n6', title: 'Audit Discrepancy Flagged', message: 'Office Chair (AF-0229) marked as missing during Q1 Audit.', type: 'warning', time: '2 days ago', category: 'audit' }
-];
-
-const mockActivityLogs = [
-  { id: 'l1', action: 'Approved Asset Transfer', actor: 'John Doe', role: 'Asset Manager', target: 'MacBook Pro AF-0012', time: '2026-07-12 11:30 AM', type: 'transfer' },
-  { id: 'l2', action: 'Raised Maintenance Request', actor: 'Sarah Connor', role: 'Employee', target: 'Keyboard AF-0490', time: '2026-07-12 10:15 AM', type: 'maintenance' },
-  { id: 'l3', action: 'Registered New Asset', actor: 'John Doe', role: 'Asset Manager', target: 'Conference Screen AF-0105', time: '2026-07-12 09:00 AM', type: 'system' },
-  { id: 'l4', action: 'Created Audit Cycle', actor: 'Jane Smith', role: 'Admin', target: 'Q1 Laptop Audit', time: '2026-07-11 04:30 PM', type: 'audit' },
-  { id: 'l5', action: 'Promoted User Role', actor: 'Jane Smith', role: 'Admin', target: 'Raj Kumar to Department Head', time: '2026-07-11 02:15 PM', type: 'system' },
-  { id: 'l6', action: 'Returned Asset', actor: 'Alice Cooper', role: 'Employee', target: 'iPad Air AF-0188', time: '2026-07-11 11:00 AM', type: 'return' },
-  { id: 'l7', action: 'Approved Maintenance Request', actor: 'John Doe', role: 'Asset Manager', target: 'Projector AF-0092', time: '2026-07-11 10:00 AM', type: 'maintenance' },
-  { id: 'l8', action: 'Booked Shared Resource', actor: 'Raj Kumar', role: 'Department Head', target: 'Meeting Room B2', time: '2026-07-11 09:30 AM', type: 'booking' }
-];
 
 export const ActivityLogs: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'notifications' | 'logs'>('notifications');
-  const [notifications, setNotifications] = useState<any[]>(mockNotifications);
-  const [logs, setLogs] = useState<any[]>(mockActivityLogs);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [logs, setLogs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState('all');
-  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const fetchData = async () => {
     setIsLoading(true);
-    setErrorMsg(null);
     try {
       if (activeTab === 'notifications') {
-        const response = await api.get('/notifications').catch(() => null);
-        if (response && response.data && response.data.length > 0) {
+        const response = await api.get('/activity/notifications').catch(() => null);
+        if (response && response.data) {
           setNotifications(response.data);
         } else {
-          setNotifications(mockNotifications);
+          setNotifications([]);
         }
       } else {
-        const response = await api.get('/logs').catch(() => null);
-        if (response && response.data && response.data.length > 0) {
+        const response = await api.get('/activity/logs').catch(() => null);
+        if (response && response.data) {
           setLogs(response.data);
         } else {
-          setLogs(mockActivityLogs);
+          setLogs([]);
         }
       }
     } catch (err) {
       console.error(err);
-      setErrorMsg('Showing local logs/notifications feed.');
     } finally {
       setIsLoading(false);
     }
@@ -255,7 +231,7 @@ export const ActivityLogs: React.FC = () => {
                       </td>
                     </tr>
                   ) : (
-                    filteredLogs.map((log, index) => (
+                    filteredLogs.map((log) => (
                       <tr 
                         key={log.id} 
                         className="border-b border-[var(--color-border)] hover:bg-[var(--color-background)] text-xs transition-colors"

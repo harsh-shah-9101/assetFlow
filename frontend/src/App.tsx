@@ -9,7 +9,7 @@ import { Allocations } from './pages/Allocations';
 import { Bookings } from './pages/Bookings';
 import { Maintenance } from './pages/Maintenance';
 import { Audits } from './pages/Audits';
-import { Reports } from './pages/OtherPages';
+import { Reports } from './pages/Reports';
 import { ActivityLogs } from './pages/ActivityLogs';
 
 function App() {
