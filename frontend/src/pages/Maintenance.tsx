@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/Button';
 import { Modal } from '../components/ui/Modal';
-import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import { Plus } from 'lucide-react';
 import api from '../services/api';
@@ -189,7 +188,6 @@ export const Maintenance: React.FC = () => {
             <label className="text-sm font-semibold text-[var(--color-text-muted)]">Asset</label>
             <Select 
               className="w-full"
-              required 
               value={formData.assetId} 
               onChange={val => setFormData({...formData, assetId: val})}
               options={[{ value: '', label: 'Select Asset...' }, ...assets.map(a => ({ value: a.id, label: `${a.assetTag} - ${a.name}` }))]}
@@ -230,7 +228,6 @@ export const Maintenance: React.FC = () => {
             <label className="text-sm font-semibold text-[var(--color-text-muted)]">Select Technician</label>
             <Select 
               className="w-full"
-              required 
               value={selectedTechId} 
               onChange={val => setSelectedTechId(val)}
               options={[{ value: '', label: 'Select Employee...' }, ...users.map(u => ({ value: u.id, label: u.name }))]}

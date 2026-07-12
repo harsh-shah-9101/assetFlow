@@ -6,7 +6,7 @@ export const getAuditCycles = async (req: Request, res: Response) => {
     const cycles = await prisma.auditCycle.findMany({
       include: {
         auditItems: {
-          include: { asset: { select: { name: true, assetTag: true } } }
+          include: { asset: { select: { name: true, assetTag: true, location: true } } }
         }
       },
       orderBy: { startDate: 'desc' }
