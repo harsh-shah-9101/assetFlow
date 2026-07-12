@@ -5,9 +5,9 @@ import { Input } from '../components/ui/Input';
 import { Select } from '../components/ui/Select';
 import api from '../services/api';
 
-const TIMELINE_START_HOUR = 9; // 9 AM
-const TIMELINE_END_HOUR = 18; // 6 PM
-const HOUR_HEIGHT = 60; // 60px per hour => 1px per minute!
+const TIMELINE_START_HOUR = 0; // 12 AM
+const TIMELINE_END_HOUR = 24; // 12 AM (next day)
+const HOUR_HEIGHT = 60; // 60px per hour => 1px per minute
 
 export const Bookings: React.FC = () => {
   const [assets, setAssets] = useState<any[]>([]);
@@ -172,7 +172,7 @@ export const Bookings: React.FC = () => {
               Select a resource above to view its availability.
             </div>
           ) : (
-            <div className="flex gap-6 relative">
+            <div className="flex gap-4 relative h-[500px] overflow-y-auto custom-scrollbar border border-[var(--color-border)] rounded-xl bg-[var(--color-background)] p-4 shadow-inner">
               {/* Timeline Axis */}
               <div className="w-16 shrink-0 relative" style={{ height: `${(TIMELINE_END_HOUR - TIMELINE_START_HOUR) * HOUR_HEIGHT}px` }}>
                 {hoursList.map(h => (
@@ -187,7 +187,7 @@ export const Bookings: React.FC = () => {
               </div>
 
               {/* Timeline Area */}
-              <div className="flex-1 relative border-l border-t border-[var(--color-border)] rounded-tr-xl bg-[var(--color-background)]" style={{ height: `${(TIMELINE_END_HOUR - TIMELINE_START_HOUR) * HOUR_HEIGHT}px` }}>
+              <div className="flex-1 relative border-l border-t border-[var(--color-border)] rounded-tr-xl" style={{ height: `${(TIMELINE_END_HOUR - TIMELINE_START_HOUR) * HOUR_HEIGHT}px` }}>
                 
                 {/* Horizontal Grid Lines */}
                 {hoursList.map(h => (
@@ -212,10 +212,10 @@ export const Bookings: React.FC = () => {
                 {/* Pending Request Block */}
                 {pEndMins > pStartMins && pStart.h >= TIMELINE_START_HOUR && (
                   <div 
-                    className={`absolute left-2 right-2 rounded-lg px-4 py-2 overflow-hidden shadow-lg z-20 flex items-start transition-all duration-300 border-2 border-dashed
+                    className={`absolute left-2 right-2 rounded-lg px-4 py-2 overflow-hidden shadow-xl z-20 flex items-start transition-all duration-300 border-2 border-dashed
                       ${isConflict 
-                        ? 'bg-[rgba(239,68,68,0.15)] border-red-500 text-red-500' 
-                        : 'bg-[rgba(16,185,129,0.15)] border-green-500 text-green-500'
+                        ? 'bg-[var(--color-surface)] border-red-500 text-red-500 opacity-95' 
+                        : 'bg-[var(--color-surface)] border-green-500 text-green-500 opacity-95'
                       }`}
                     style={pendingBlockStyles}
                   >
