@@ -1,160 +1,122 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { Input } from '../components/ui/Input';
-import { Modal } from '../components/ui/Modal';
 import { Plus } from 'lucide-react';
 import api from '../services/api';
-import { useAuth } from '../context/AuthContext';
+
+const COLUMNS = [
+  { id: 'PENDING', title: 'Pending' },
+  { id: 'APPROVED', title: 'Approved' },
+  { id: 'TECHNICIAN_ASSIGNED', title: 'Technician Assigned' },
+  { id: 'IN_PROGRESS', title: 'In Progress' },
+  { id: 'RESOLVED', title: 'Resolved' }
+];
 
 export const Maintenance: React.FC = () => {
-  const { user } = useAuth();
   const [requests, setRequests] = useState<any[]>([]);
-  const [assets, setAssets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isRaiseOpen, setIsRaiseOpen] = useState(false);
-  
-  const [formData, setFormData] = useState({ assetId: '', issue: '', priority: 'MEDIUM', photoUrl: '' });
 
-  const fetchData = async () => {
+  const fetchRequests = async () => {
     setIsLoading(true);
     try {
-      const [maintRes, assetsRes] = await Promise.all([
-        api.get('/maintenance'),
-        api.get('/assets')
-      ]);
-      setRequests(maintRes.data);
-      setAssets(assetsRes.data);
+      const res = await api.get('/maintenance-requests');
+      setRequests(res.data);
     } catch (error) {
-      console.error("Failed to fetch data", error);
+      console.error(error);
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchData();
+    fetchRequests();
   }, []);
 
-  const handleRaise = async (e: React.FormEvent) => {
+  const handleDragStart = (e: React.DragEvent, ticketId: string) => {
+    e.dataTransfer.setData('ticketId', ticketId);
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetStatus: string) => {
     e.preventDefault();
+    const ticketId = e.dataTransfer.getData('ticketId');
+    if (!ticketId) return;
+
+    // Optimistically update UI
+    setRequests(prev => prev.map(req => 
+      req.id === ticketId ? { ...req, status: targetStatus } : req
+    ));
+
     try {
-      await api.post('/maintenance', formData);
-      setIsRaiseOpen(false);
-      setFormData({ assetId: '', issue: '', priority: 'MEDIUM', photoUrl: '' });
-      fetchData();
+      await api.put(`/maintenance-requests/${ticketId}/status`, { status: targetStatus });
+      fetchRequests(); // Re-fetch to ensure sync
     } catch (error) {
       console.error(error);
-      alert("Failed to raise request.");
+      alert('Failed to update status.');
+      fetchRequests(); // Revert on failure
     }
   };
 
-  const handleStatusUpdate = async (id: string, status: string) => {
-    try {
-      await api.put(`/maintenance/${id}/status`, { status });
-      fetchData();
-    } catch (error) {
-      console.error(error);
-    }
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault(); // Necessary to allow dropping
   };
-
-  const canManage = user?.role === 'ASSET_MANAGER' || user?.role === 'ADMIN';
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 h-[calc(100vh-120px)] flex flex-col">
+      <div className="flex justify-between items-center shrink-0">
         <div>
-          <h1 className="text-2xl font-bold text-[var(--color-text)]">Maintenance</h1>
-          <p className="text-[var(--color-text-muted)]">Report issues and track repairs.</p>
+          <h1 className="text-2xl font-bold text-[var(--color-text)]">Maintenance Management</h1>
+          <p className="text-[var(--color-text-muted)]">Approval workflow as a Kanban board.</p>
         </div>
-        <Button className="gap-2" onClick={() => setIsRaiseOpen(true)}>
+        <Button className="gap-2">
           <Plus size={18} /> Raise Request
         </Button>
       </div>
 
-      <Card>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-[var(--color-background)] border-b border-[var(--color-border)] text-[var(--color-text-muted)] text-sm uppercase tracking-wider">
-                  <th className="p-4 font-medium">Asset</th>
-                  <th className="p-4 font-medium">Issue</th>
-                  <th className="p-4 font-medium">Priority</th>
-                  <th className="p-4 font-medium">Status</th>
-                  <th className="p-4 font-medium">Requester</th>
-                  <th className="p-4 font-medium text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {isLoading ? (
-                  <tr><td colSpan={6} className="p-8 text-center">Loading...</td></tr>
-                ) : requests.length === 0 ? (
-                  <tr><td colSpan={6} className="p-8 text-center text-[var(--color-text-muted)]">No maintenance requests found.</td></tr>
-                ) : (
-                  requests.map(req => (
-                    <tr key={req.id} className="border-b border-[var(--color-border)] hover:bg-[var(--color-background)]">
-                      <td className="p-4 font-medium text-[var(--color-primary)]">{req.asset?.name || 'Unknown'}</td>
-                      <td className="p-4">{req.issue}</td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 text-xs rounded-full ${req.priority === 'HIGH' ? 'bg-[var(--color-danger-bg)] text-[var(--color-danger)]' : req.priority === 'MEDIUM' ? 'bg-[var(--color-warning-bg)] text-[var(--color-warning)]' : 'bg-[var(--color-background)] text-[var(--color-text-muted)]'}`}>
-                          {req.priority}
-                        </span>
-                      </td>
-                      <td className="p-4">
-                        <span className={`px-2 py-1 text-xs rounded-full font-semibold ${req.status === 'PENDING' ? 'bg-gray-100 text-gray-700' : req.status === 'APPROVED' ? 'bg-[var(--color-info-bg)] text-[var(--color-info)]' : req.status === 'IN_PROGRESS' ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]' : req.status === 'RESOLVED' ? 'bg-[var(--color-success-bg)] text-[var(--color-success)]' : 'bg-[var(--color-danger-bg)] text-[var(--color-danger)]'}`}>
-                          {req.status}
-                        </span>
-                      </td>
-                      <td className="p-4 text-[var(--color-text-muted)]">{req.requester?.name}</td>
-                      <td className="p-4 text-right">
-                        {canManage && req.status === 'PENDING' && (
-                          <div className="flex gap-2 justify-end">
-                            <Button size="sm" onClick={() => handleStatusUpdate(req.id, 'APPROVED')}>Approve</Button>
-                            <Button variant="danger" size="sm" onClick={() => handleStatusUpdate(req.id, 'REJECTED')}>Reject</Button>
-                          </div>
-                        )}
-                        {canManage && req.status === 'APPROVED' && (
-                          <Button size="sm" onClick={() => handleStatusUpdate(req.id, 'IN_PROGRESS')}>Start Work</Button>
-                        )}
-                        {canManage && req.status === 'IN_PROGRESS' && (
-                          <Button size="sm" onClick={() => handleStatusUpdate(req.id, 'RESOLVED')}>Resolve</Button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="flex-1 flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
+        {COLUMNS.map(column => (
+          <div 
+            key={column.id}
+            className="flex-1 min-w-[250px] bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] p-4 flex flex-col gap-4"
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, column.id)}
+          >
+            <div className="font-semibold text-[var(--color-text-muted)] tracking-wide uppercase text-sm border-b border-[var(--color-border)] pb-2 text-center">
+              {column.title}
+            </div>
 
-      <Modal isOpen={isRaiseOpen} onClose={() => setIsRaiseOpen(false)} title="Raise Maintenance Request">
-        <form onSubmit={handleRaise} className="space-y-4">
-          <div className="input-group">
-            <label className="input-label">Asset</label>
-            <select className="input-field" required value={formData.assetId} onChange={e => setFormData({...formData, assetId: e.target.value})}>
-              <option value="">Select Asset...</option>
-              {assets.map(a => <option key={a.id} value={a.id}>{a.name} ({a.assetTag})</option>)}
-            </select>
+            <div className="flex-1 flex flex-col gap-3 overflow-y-auto custom-scrollbar pr-2">
+              {isLoading && requests.length === 0 ? (
+                <div className="text-center text-sm text-[var(--color-text-muted)]">Loading...</div>
+              ) : null}
+              
+              {requests
+                .filter(r => r.status === column.id)
+                .map(req => (
+                  <div
+                    key={req.id}
+                    draggable
+                    onDragStart={(e) => handleDragStart(e, req.id)}
+                    className={`p-3 rounded-lg border cursor-grab active:cursor-grabbing hover:shadow-lg transition-all
+                      ${req.status === 'RESOLVED' 
+                        ? 'bg-[rgba(16,185,129,0.1)] border-green-500 text-green-400' 
+                        : 'bg-[var(--color-background)] border-[var(--color-border)] hover:border-[var(--color-primary)]'
+                      }`}
+                  >
+                    <div className={`text-xs font-bold mb-1 ${req.status === 'RESOLVED' ? 'text-green-500' : 'text-[var(--color-primary-light)]'}`}>
+                      {req.asset?.assetTag || 'UNKNOWN'}
+                    </div>
+                    <div className="text-sm font-medium leading-snug">
+                      {req.issue}
+                    </div>
+                  </div>
+                ))}
+            </div>
           </div>
-          <div className="input-group">
-            <label className="input-label">Describe the Issue</label>
-            <textarea className="input-field min-h-[100px]" required value={formData.issue} onChange={e => setFormData({...formData, issue: e.target.value})} placeholder="What is broken?" />
-          </div>
-          <div className="input-group">
-            <label className="input-label">Priority</label>
-            <select className="input-field" value={formData.priority} onChange={e => setFormData({...formData, priority: e.target.value})}>
-              <option value="LOW">Low</option>
-              <option value="MEDIUM">Medium</option>
-              <option value="HIGH">High</option>
-            </select>
-          </div>
-          <Input label="Photo URL (Optional)" value={formData.photoUrl} onChange={e => setFormData({...formData, photoUrl: e.target.value})} />
-          <div className="flex justify-end mt-4"><Button type="submit">Submit Request</Button></div>
-        </form>
-      </Modal>
+        ))}
+      </div>
+      
+      <div className="text-center text-sm text-[var(--color-text-muted)] shrink-0">
+        Approving a card moves the asset to under maintenance, resolving returns it to available.
+      </div>
     </div>
   );
 };

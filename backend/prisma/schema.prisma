@@ -135,6 +135,7 @@ enum MaintenancePriority {
 enum MaintenanceStatus {
   PENDING
   APPROVED
+  TECHNICIAN_ASSIGNED
   REJECTED
   IN_PROGRESS
   RESOLVED
