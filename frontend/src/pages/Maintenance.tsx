@@ -18,7 +18,7 @@ export const Maintenance: React.FC = () => {
   const fetchRequests = async () => {
     setIsLoading(true);
     try {
-      const res = await api.get('/maintenance-requests');
+      const res = await api.get('/maintenance');
       setRequests(res.data);
     } catch (error) {
       console.error(error);
@@ -46,7 +46,7 @@ export const Maintenance: React.FC = () => {
     ));
 
     try {
-      await api.put(`/maintenance-requests/${ticketId}/status`, { status: targetStatus });
+      await api.put(`/maintenance/${ticketId}/status`, { status: targetStatus });
       fetchRequests(); // Re-fetch to ensure sync
     } catch (error) {
       console.error(error);
