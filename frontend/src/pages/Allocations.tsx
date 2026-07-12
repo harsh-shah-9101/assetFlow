@@ -182,9 +182,12 @@ export const Allocations: React.FC = () => {
                     {activeAllocation && (
                       <div className="space-y-2">
                         <label className="text-sm font-semibold text-[var(--color-text-muted)]">From</label>
-                        <div className="input-field bg-[var(--color-background)] opacity-70 cursor-not-allowed">
-                          {activeAllocation.user?.name}
-                        </div>
+                        <input 
+                          type="text"
+                          className="input-field w-full bg-[var(--color-background)] opacity-70 cursor-not-allowed"
+                          value={activeAllocation.user?.name || 'Unknown'}
+                          disabled
+                        />
                       </div>
                     )}
                     <div className="space-y-2">
