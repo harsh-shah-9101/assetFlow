@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '../components/ui/Button';
+import { Modal } from '../components/ui/Modal';
+import { Input } from '../components/ui/Input';
+import { Select } from '../components/ui/Select';
 import { Plus } from 'lucide-react';
 import api from '../services/api';
 
@@ -13,7 +16,10 @@ const COLUMNS = [
 
 export const Maintenance: React.FC = () => {
   const [requests, setRequests] = useState<any[]>([]);
+  const [assets, setAssets] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isRaiseOpen, setIsRaiseOpen] = useState(false);
+  const [formData, setFormData] = useState({ assetId: '', issue: '', priority: 'MEDIUM' });
 
   const fetchRequests = async () => {
     setIsLoading(true);
@@ -29,10 +35,24 @@ export const Maintenance: React.FC = () => {
 
   useEffect(() => {
     fetchRequests();
+    api.get('/assets').then(res => setAssets(res.data)).catch(console.error);
   }, []);
 
   const handleDragStart = (e: React.DragEvent, ticketId: string) => {
     e.dataTransfer.setData('ticketId', ticketId);
+  };
+
+  const handleRaise = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.post('/maintenance', formData);
+      setIsRaiseOpen(false);
+      setFormData({ assetId: '', issue: '', priority: 'MEDIUM' });
+      fetchRequests();
+    } catch (error) {
+      console.error(error);
+      alert('Failed to raise maintenance request.');
+    }
   };
 
   const handleDrop = async (e: React.DragEvent, targetStatus: string) => {
@@ -66,7 +86,7 @@ export const Maintenance: React.FC = () => {
           <h1 className="text-2xl font-bold text-[var(--color-text)]">Maintenance Management</h1>
           <p className="text-[var(--color-text-muted)]">Approval workflow as a Kanban board.</p>
         </div>
-        <Button className="gap-2">
+        <Button className="gap-2" onClick={() => setIsRaiseOpen(true)}>
           <Plus size={18} /> Raise Request
         </Button>
       </div>
@@ -117,6 +137,47 @@ export const Maintenance: React.FC = () => {
       <div className="text-center text-sm text-[var(--color-text-muted)] shrink-0">
         Approving a card moves the asset to under maintenance, resolving returns it to available.
       </div>
+
+      <Modal isOpen={isRaiseOpen} onClose={() => setIsRaiseOpen(false)} title="Raise Maintenance Request">
+        <form onSubmit={handleRaise} className="space-y-4">
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[var(--color-text-muted)]">Asset</label>
+            <Select 
+              className="w-full"
+              required 
+              value={formData.assetId} 
+              onChange={val => setFormData({...formData, assetId: val})}
+              options={[{ value: '', label: 'Select Asset...' }, ...assets.map(a => ({ value: a.id, label: `${a.assetTag} - ${a.name}` }))]}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[var(--color-text-muted)]">Issue Description</label>
+            <textarea 
+              className="input-field min-h-[100px] py-2" 
+              required 
+              placeholder="E.g., Screen flickering continuously"
+              value={formData.issue} 
+              onChange={e => setFormData({...formData, issue: e.target.value})}
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-semibold text-[var(--color-text-muted)]">Priority</label>
+            <Select 
+              className="w-full"
+              value={formData.priority} 
+              onChange={val => setFormData({...formData, priority: val})}
+              options={[
+                { value: 'LOW', label: 'Low' },
+                { value: 'MEDIUM', label: 'Medium' },
+                { value: 'HIGH', label: 'High' }
+              ]}
+            />
+          </div>
+          <div className="flex justify-end pt-4">
+            <Button type="submit">Submit Request</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 };
