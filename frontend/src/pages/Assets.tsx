@@ -3,6 +3,7 @@ import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { Modal } from '../components/ui/Modal';
+import { Select } from '../components/ui/Select';
 import { Search, Plus, Filter } from 'lucide-react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -142,22 +143,31 @@ export const Assets = () => {
             />
           </div>
           <div className="flex gap-3 items-center">
-            <select className="input-field !py-2 !px-3 !w-auto min-w-[160px] bg-[var(--color-surface)] cursor-pointer hover:border-[var(--color-primary)] transition-colors" value={categoryFilter} onChange={e => setCategoryFilter(e.target.value)}>
-              <option value="">Category</option>
-              {categories.map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
-            </select>
-            <select className="input-field !py-2 !px-3 !w-auto min-w-[160px] bg-[var(--color-surface)] cursor-pointer hover:border-[var(--color-primary)] transition-colors" value={statusFilter} onChange={e => setStatusFilter(e.target.value)}>
-              <option value="">Status</option>
-              <option value="AVAILABLE">Available</option>
-              <option value="ALLOCATED">Allocated</option>
-              <option value="UNDER_MAINTENANCE">Maintenance</option>
-              <option value="LOST">Lost</option>
-              <option value="RETIRED">Retired</option>
-            </select>
-            <select className="input-field !py-2 !px-3 !w-auto min-w-[160px] bg-[var(--color-surface)] cursor-pointer hover:border-[var(--color-primary)] transition-colors" value={departmentFilter} onChange={e => setDepartmentFilter(e.target.value)}>
-              <option value="">Department</option>
-              {departments.map(d => <option key={d.id} value={d.id}>{d.name}</option>)}
-            </select>
+            <Select 
+              className="min-w-[160px]" 
+              value={categoryFilter} 
+              onChange={setCategoryFilter} 
+              options={[{ value: '', label: 'Category' }, ...categories.map(c => ({ value: c.id, label: c.name }))]} 
+            />
+            <Select 
+              className="min-w-[160px]" 
+              value={statusFilter} 
+              onChange={setStatusFilter} 
+              options={[
+                { value: '', label: 'Status' },
+                { value: 'AVAILABLE', label: 'Available' },
+                { value: 'ALLOCATED', label: 'Allocated' },
+                { value: 'UNDER_MAINTENANCE', label: 'Maintenance' },
+                { value: 'LOST', label: 'Lost' },
+                { value: 'RETIRED', label: 'Retired' }
+              ]} 
+            />
+            <Select 
+              className="min-w-[160px]" 
+              value={departmentFilter} 
+              onChange={setDepartmentFilter} 
+              options={[{ value: '', label: 'Department' }, ...departments.map(d => ({ value: d.id, label: d.name }))]} 
+            />
           </div>
         </CardHeader>
         <CardContent className="p-0">
