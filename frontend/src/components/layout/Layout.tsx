@@ -4,7 +4,8 @@ import { useAuth } from '../../context/AuthContext';
 import { 
   LayoutDashboard, Package, Users, CalendarDays, 
   Wrench, ClipboardCheck, BarChart3, LogOut, Settings,
-  ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen
+  ChevronDown, ChevronRight, PanelLeftClose, PanelLeftOpen,
+  Activity
 } from 'lucide-react';
 
 function WorkspaceSwitcher({ currentWorkspace, userName }: { currentWorkspace: string, userName: string }) {
@@ -176,6 +177,7 @@ export const Layout: React.FC = () => {
       items: [
         { id: 'audits', title: 'Audits', path: '/audits', icon: ClipboardCheck, roles: ['ASSET_MANAGER','ADMIN'] },
         { id: 'reports', title: 'Reports', path: '/reports', icon: BarChart3, roles: ['DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+        { id: 'logs', title: 'Activity Logs', path: '/logs', icon: Activity, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
       ]
     }
   ];

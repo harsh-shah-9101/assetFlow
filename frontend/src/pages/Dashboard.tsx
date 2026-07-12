@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Package, Users, Wrench, CalendarDays, TrendingUp, Activity, ArrowRight, AlertCircle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
@@ -38,6 +39,7 @@ const activityTypeConfig = {
 };
 
 export const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats>({
     totalAssets: 0, availableAssets: 0, allocatedAssets: 0, maintenanceAssets: 0, activeBookings: 12,
   });
@@ -202,7 +204,10 @@ export const Dashboard: React.FC = () => {
             <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-text)', margin: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <Activity size={16} color="var(--color-primary)" /> Recent Activity
             </h3>
-            <button style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', padding: 0 }}>
+            <button 
+              onClick={() => navigate('/logs')}
+              style={{ fontSize: '12px', fontWeight: 600, color: 'var(--color-primary)', background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '4px', padding: 0 }}
+            >
               View All <ArrowRight size={12} />
             </button>
           </div>

@@ -10,6 +10,7 @@ import { Bookings } from './pages/Bookings';
 import { Maintenance } from './pages/Maintenance';
 import { Audits } from './pages/Audits';
 import { Reports } from './pages/OtherPages';
+import { ActivityLogs } from './pages/ActivityLogs';
 
 function App() {
   return (
@@ -26,6 +27,7 @@ function App() {
             <Route path="maintenance" element={<Maintenance />} />
             <Route path="audits" element={<Audits />} />
             <Route path="reports" element={<Reports />} />
+            <Route path="logs" element={<ActivityLogs />} />
             <Route path="setup" element={<Setup />} />
           </Route>
 
