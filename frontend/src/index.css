@@ -1,32 +1,48 @@
 @import "tailwindcss";
 
 :root {
-  --color-primary: #3b82f6;
-  --color-primary-hover: #2563eb;
-  --color-primary-light: #eff6ff;
-  --color-secondary: #8b5cf6;
-  --color-background: #f8fafc;
-  --color-surface: #ffffff;
-  --color-text: #0f172a;
-  --color-text-muted: #64748b;
+  --color-primary: #f97316;
+  --color-primary-hover: #ea580c;
+  --color-primary-light: rgba(249, 115, 22, 0.1);
+  --color-secondary: #27272a;
+  --color-background: #09090b;
+  --color-surface: #18181b;
+  --color-text: #f4f4f5;
+  --color-text-muted: #a1a1aa;
   --color-success: #10b981;
-  --color-success-bg: #ecfdf5;
+  --color-success-bg: rgba(16, 185, 129, 0.12);
   --color-warning: #f59e0b;
-  --color-warning-bg: #fffbeb;
+  --color-warning-bg: rgba(245, 158, 11, 0.12);
   --color-danger: #ef4444;
-  --color-danger-bg: #fef2f2;
-  --color-info: #0ea5e9;
-  --color-info-bg: #f0f9ff;
-  --color-border: #e2e8f0;
+  --color-danger-bg: rgba(239, 68, 68, 0.12);
+  --color-info: #3b82f6;
+  --color-info-bg: rgba(59, 130, 246, 0.12);
+  --color-border: #27272a;
   --font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
-  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.5);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.5);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.5);
   --radius-sm: 0.25rem;
   --radius-md: 0.5rem;
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   --transition-fast: 150ms ease;
+}
+
+/* Dark scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-background);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
 }
 
 *, *::before, *::after {
@@ -85,7 +101,7 @@ button {
 .btn:disabled { opacity: 0.6; cursor: not-allowed; }
 .btn-primary { background-color: var(--color-primary); color: white; }
 .btn-primary:hover:not(:disabled) { background-color: var(--color-primary-hover); }
-.btn-secondary { background-color: white; color: var(--color-text); border-color: var(--color-border); }
+.btn-secondary { background-color: var(--color-secondary); color: var(--color-text); border-color: var(--color-border); }
 .btn-secondary:hover:not(:disabled) { background-color: var(--color-background); }
 .btn-danger { background-color: var(--color-danger); color: white; }
 .btn-ghost { background-color: transparent; color: var(--color-text-muted); }

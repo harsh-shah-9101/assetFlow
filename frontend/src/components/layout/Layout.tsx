@@ -14,7 +14,7 @@ const SidebarLogo = () => {
   const { open } = useSidebar();
   return (
     <a href="#" style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '4px 8px', textDecoration: 'none', marginBottom: '8px', overflow: 'hidden' }}>
-      <div style={{ width: 24, height: 20, flexShrink: 0, borderRadius: '5px 3px 5px 2px', backgroundColor: '#111827' }} />
+      <div style={{ width: 24, height: 20, flexShrink: 0, borderRadius: '5px 3px 5px 2px', backgroundColor: 'var(--color-primary)' }} />
       <AnimatePresence initial={false}>
         {open && (
           <motion.span
@@ -23,7 +23,7 @@ const SidebarLogo = () => {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -4 }}
             transition={{ duration: 0.18 }}
-            style={{ fontWeight: 700, fontSize: '17px', color: '#111827', whiteSpace: 'nowrap' }}
+            style={{ fontWeight: 700, fontSize: '17px', color: 'var(--color-text)', whiteSpace: 'nowrap' }}
           >
             AssetFlow
           </motion.span>
@@ -73,7 +73,7 @@ export const Layout: React.FC = () => {
       height: '100vh',
       width: '100%',
       overflow: 'hidden',
-      backgroundColor: '#f3f4f6',
+      backgroundColor: 'var(--color-background)',
       fontFamily: "'Inter', system-ui, sans-serif",
     }}>
       {/* ── Sidebar ── */}
@@ -83,7 +83,7 @@ export const Layout: React.FC = () => {
           <SidebarLogo />
 
           {/* Divider */}
-          <div style={{ height: 1, backgroundColor: '#f3f4f6', margin: '8px 0 16px' }} />
+          <div style={{ height: 1, backgroundColor: 'var(--color-border)', margin: '8px 0 16px' }} />
 
           {/* Nav links – scrollable */}
           <div style={{ flex: 1, overflowY: 'auto', overflowX: 'hidden', display: 'flex', flexDirection: 'column', gap: '2px' }}>
@@ -96,7 +96,7 @@ export const Layout: React.FC = () => {
                   link={{
                     label: item.name,
                     href: item.path,
-                    icon: <item.icon size={20} color={active ? '#3b82f6' : '#9ca3af'} strokeWidth={active ? 2 : 1.5} />,
+                    icon: <item.icon size={20} color={active ? 'var(--color-primary)' : 'var(--color-text-muted)'} strokeWidth={active ? 2 : 1.5} />,
                   }}
                 />
               );
@@ -104,7 +104,7 @@ export const Layout: React.FC = () => {
           </div>
 
           {/* Bottom: user + logout */}
-          <div style={{ paddingTop: '12px', borderTop: '1px solid #f3f4f6', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+          <div style={{ paddingTop: '12px', borderTop: '1px solid var(--color-border)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
             <SidebarLink
               link={{
                 label: user?.name ?? 'User',
@@ -133,12 +133,12 @@ export const Layout: React.FC = () => {
       {/* ── Main area ── */}
       <div style={{ display: 'flex', flex: 1, flexDirection: 'column', overflow: 'hidden', margin: '8px 8px 8px 0' }}>
         {/* Header */}
-        <div style={{ backgroundColor: '#fff', borderRadius: '16px 16px 0 0', padding: '0 28px', height: 52, display: 'flex', alignItems: 'center', borderBottom: '1px solid #e5e7eb', flexShrink: 0 }}>
-          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: '#111827' }}>{currentPage}</h2>
+        <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '16px 16px 0 0', padding: '0 28px', height: 52, display: 'flex', alignItems: 'center', borderBottom: '1px solid var(--color-border)', flexShrink: 0 }}>
+          <h2 style={{ margin: 0, fontSize: 15, fontWeight: 600, color: 'var(--color-text)' }}>{currentPage}</h2>
         </div>
 
         {/* Page content */}
-        <div style={{ backgroundColor: '#fff', borderRadius: '0 0 16px 16px', flex: 1, overflow: 'auto', padding: '24px 28px' }}>
+        <div style={{ backgroundColor: 'var(--color-surface)', borderRadius: '0 0 16px 16px', flex: 1, overflow: 'auto', padding: '24px 28px' }}>
           <Outlet />
         </div>
       </div>

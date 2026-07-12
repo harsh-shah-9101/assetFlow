@@ -43,8 +43,8 @@ export const SidebarBody = ({
         height: "100%",
         display: "flex",
         flexDirection: "column",
-        backgroundColor: "#ffffff",
-        borderRight: "1px solid #e5e7eb",
+        backgroundColor: "var(--color-surface)",
+        borderRight: "1px solid var(--color-border)",
         overflow: "hidden",
         flexShrink: 0,
         padding: "20px 12px",
@@ -79,14 +79,14 @@ export const SidebarLink = ({
         padding: "8px",
         borderRadius: "8px",
         textDecoration: "none",
-        backgroundColor: isActive ? "#eff6ff" : "transparent",
+        backgroundColor: isActive ? "var(--color-primary-light)" : "transparent",
         transition: "background-color 0.15s ease",
         whiteSpace: "nowrap",
         overflow: "hidden",
         minWidth: 0,
       }}
       onMouseEnter={(e) => {
-        if (!isActive) (e.currentTarget as HTMLElement).style.backgroundColor = "#f9fafb";
+        if (!isActive) (e.currentTarget as HTMLElement).style.backgroundColor = "rgba(255, 255, 255, 0.03)";
       }}
       onMouseLeave={(e) => {
         if (!isActive) (e.currentTarget as HTMLElement).style.backgroundColor = "transparent";
@@ -109,7 +109,7 @@ export const SidebarLink = ({
             style={{
               fontSize: "14px",
               fontWeight: isActive ? 600 : 500,
-              color: isActive ? "#3b82f6" : "#374151",
+              color: isActive ? "var(--color-primary)" : "var(--color-text)",
               overflow: "hidden",
               textOverflow: "ellipsis",
               whiteSpace: "nowrap",
