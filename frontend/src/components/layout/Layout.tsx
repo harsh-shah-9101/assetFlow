@@ -161,6 +161,7 @@ export const Layout: React.FC = () => {
     {
       items: [
         { id: 'dashboard', title: 'Dashboard', path: '/', icon: LayoutDashboard, roles: ['EMPLOYEE','DEPARTMENT_HEAD','ASSET_MANAGER','ADMIN'] },
+        { id: 'setup', title: 'Organization setup', path: '/setup', icon: Settings, roles: ['ADMIN'] },
       ]
     },
     {
@@ -224,12 +225,6 @@ export const Layout: React.FC = () => {
         </div>
 
         <div className="mt-auto pt-4 border-t border-zinc-800 flex flex-col gap-0.5">
-          {user?.role === 'ADMIN' && (
-            <NavItem 
-              item={{ id: 'setup', title: 'Org Setup', path: '/setup', icon: Settings }} 
-              activePath={location.pathname} 
-            />
-          )}
           <div onClick={() => logout()} className="w-full">
             <NavItem 
               item={{ id: 'logout', title: 'Log out', path: '#', icon: LogOut }} 
