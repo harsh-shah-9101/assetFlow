@@ -95,13 +95,13 @@ export const Maintenance: React.FC = () => {
                     key={req.id}
                     draggable
                     onDragStart={(e) => handleDragStart(e, req.id)}
-                    className={`p-3 rounded-lg border cursor-grab active:cursor-grabbing hover:shadow-lg transition-all
+                    className={`p-3 rounded-lg border cursor-grab active:cursor-grabbing hover:shadow-md transition-all
                       ${req.status === 'RESOLVED' 
                         ? 'bg-[rgba(16,185,129,0.1)] border-green-500 text-green-400' 
-                        : 'bg-[var(--color-background)] border-[var(--color-border)] hover:border-[var(--color-primary)]'
+                        : 'bg-[var(--color-surface)] border-[var(--color-border)] hover:border-[var(--color-text-muted)]'
                       }`}
                   >
-                    <div className={`text-xs font-bold mb-1 ${req.status === 'RESOLVED' ? 'text-green-500' : 'text-[var(--color-primary-light)]'}`}>
+                    <div className={`text-xs font-bold mb-1 ${req.status === 'RESOLVED' ? 'text-green-500' : 'text-[var(--color-text-muted)]'}`}>
                       {req.asset?.assetTag || 'UNKNOWN'}
                     </div>
                     <div className="text-sm font-medium leading-snug">
